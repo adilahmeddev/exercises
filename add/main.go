@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"exercises"
 	"fmt"
 	"os"
@@ -9,19 +8,13 @@ import (
 )
 
 func main(){
-	input := bufio.NewScanner(os.Stdin)
+	args := os.Args[1:]
 	var numbers []int
 
-	fmt.Println("Enter all the numbers you want to add, and type \"stop\" when you're done")
-
-	for input.Scan() {
-		i, err := strconv.Atoi(input.Text())
+	for _, arg := range args {
+		i, err := strconv.Atoi(arg)
 		if err == nil {
 			numbers = append(numbers, i)
-		} else {
-			if input.Text() == "stop" {
-				break
-			}
 		}
 	}
 	sum := exercises.Add(numbers...)
