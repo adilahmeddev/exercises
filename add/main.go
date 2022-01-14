@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"exercises"
 	"fmt"
+	"io/fs"
 	"os"
 	"strconv"
 )
@@ -13,32 +14,43 @@ func main(){
 	var numbers []int
 
 	if len(args) == 0 {
-		file, err := os.Open("add/input.txt")
-		if err != nil {
-			panic(err)
-		}
-		defer file.Close()
-		scanner := bufio.NewScanner(file)
+		numbers = InputFromFile(numbers, os.DirFS("add/"))
+	}
+	numbers = InputFromArgs(args, numbers)
 
-		for scanner.Scan() {
-			i, err := strconv.Atoi(scanner.Text())
-			if err == nil {
-				numbers = append(numbers, i)
-			}
-		}
-	}
-	for _, arg := range args {
-		i, err := strconv.Atoi(arg)
-		if err == nil {
-			numbers = append(numbers, i)
-		}
-	}
 	sum := exercises.Add(numbers...)
 	formattedNumber := FormatNumber(sum)
 	fmt.Println(formattedNumber)
 }
 
+func InputFromArgs(args []string, numbers []int) []int {
+	for _, arg := range args {
+		numbers = extractNumber(arg, numbers)
+	}
+	return numbers
+}
 
+func InputFromFile(numbers []int, fs fs.FS) []int {
+	file, err := fs.Open("input.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		numbers = extractNumber(scanner.Text(), numbers)
+	}
+	return numbers
+}
+
+func extractNumber(input string, numbers []int) []int {
+	i, err := strconv.Atoi(input)
+	if err == nil {
+		numbers = append(numbers, i)
+	}
+	return numbers
+}
 
 func FormatNumber(number int) string {
 	commaCount := 0
