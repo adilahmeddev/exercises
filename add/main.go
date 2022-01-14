@@ -24,14 +24,16 @@ func main(){
 }
 
 func FormatNumber(number int) string {
+	commaCount := 0
 	numberAsString:= strconv.Itoa(number)
 	if number <= 9999 {
 		return numberAsString
 	} else {
 		chars := []rune(numberAsString)
 		for i := len(chars); i>=0; i--{
-			if (i+1)%3==0 && i != 0 && i != len(chars){
+			if (len(chars)-i-commaCount)%3==0 && i != 0 && i != len(chars){
 				chars = InsertIntoSlice(chars, i, ',')
+				commaCount++
 			}
 		}
 		return string(chars)
