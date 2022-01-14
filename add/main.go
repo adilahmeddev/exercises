@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"exercises"
 	"fmt"
 	"os"
@@ -11,6 +12,21 @@ func main(){
 	args := os.Args[1:]
 	var numbers []int
 
+	if len(args) == 0 {
+		file, err := os.Open("add/input.txt")
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+		scanner := bufio.NewScanner(file)
+
+		for scanner.Scan() {
+			i, err := strconv.Atoi(scanner.Text())
+			if err == nil {
+				numbers = append(numbers, i)
+			}
+		}
+	}
 	for _, arg := range args {
 		i, err := strconv.Atoi(arg)
 		if err == nil {
@@ -20,8 +36,9 @@ func main(){
 	sum := exercises.Add(numbers...)
 	formattedNumber := FormatNumber(sum)
 	fmt.Println(formattedNumber)
-
 }
+
+
 
 func FormatNumber(number int) string {
 	commaCount := 0
