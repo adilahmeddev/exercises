@@ -48,14 +48,28 @@ func TestInsertIntoSlice(t *testing.T) {
 
 func TestParseInput(t *testing.T){
 	is := is.New(t)
-	fileInputArgs := []string{"--input-file", "input.txt"}
-	numberInputArgs := []string{"20", "5", "2", "-3"}
+	t.Run("from txt", func(t *testing.T) {
+		fileInputArgs := []string{"--input-file", "input.txt"}
+		numberInputArgs := []string{"20", "5", "2", "-3"}
 
-	isFile := ParseArgs(fileInputArgs)
-	isNumber := ParseArgs(numberInputArgs)
+		isFile := ParseArgs(fileInputArgs)
+		isNumber := ParseArgs(numberInputArgs)
 
-	is.Equal(isFile, "file")
-	is.Equal(isNumber, "number")
+		is.Equal(isFile, "file")
+		is.Equal(isNumber, "number")
+	})
+
+	t.Run("from csv", func(t *testing.T) {
+		fileInputArgs := []string{"--input-file", "input.csv"}
+		numberInputArgs := []string{"20", "5", "2", "-3"}
+
+		isFile := ParseArgs(fileInputArgs)
+		isNumber := ParseArgs(numberInputArgs)
+
+		is.Equal(isFile, "file")
+		is.Equal(isNumber, "number")
+	})
+
 }
 
 func TestInputFromFile(t *testing.T) {

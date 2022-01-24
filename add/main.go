@@ -2,11 +2,13 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"exercises"
 	"fmt"
 	"io/fs"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main(){
@@ -56,11 +58,24 @@ func InputFromArgs(args []string, numbers []int) []int {
 
 func InputFromFile(numbers []int, file fs.File) []int {
 	defer file.Close()
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		numbers = extractNumber(scanner.Text(), numbers)
+	fileInfo, _ := file.Stat()
+	if extension := strings.Split(fileInfo.Name(), "."); extension[1] == "csv"{
+		reader := csv.NewReader(file)
+		records, _ := reader.ReadAll()
+		numberRecords := records[0]
+		for _,number := range numberRecords {
+			fmt.Println(numberRecords)
+			numbers = extractNumber(string(number), numbers)
+		}
 	}
+	if extension := strings.Split(fileInfo.Name(), "."); extension[1] == "txt"{
+		scanner := bufio.NewScanner(file)
+
+		for scanner.Scan() {
+			numbers = extractNumber(scanner.Text(), numbers)
+		}
+	}
+
 	return numbers
 }
 
