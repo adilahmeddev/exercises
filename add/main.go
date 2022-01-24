@@ -10,17 +10,41 @@ import (
 )
 
 func main(){
+	fs := os.DirFS("add/")
 	args := os.Args[1:]
 	var numbers []int
 
 	if len(args) == 0 {
-		numbers = InputFromFile(numbers, os.DirFS("add/"))
+		file, err := fs.Open("input.txt")
+		if err != nil {
+			panic(err)
+		}
+		numbers = InputFromFile(numbers,file)
+	} else {
+		fmt.Println(args[1])
+		typeOfArgs := ParseArgs(args)
+		if typeOfArgs == "file"{
+			file, err := fs.Open(args[1])
+			if err != nil {
+				panic(err)
+			}
+			numbers = InputFromFile(numbers, file)
+		}
+		if typeOfArgs == "number" {
+			numbers = InputFromArgs(args, numbers)
+		}
 	}
-	numbers = InputFromArgs(args, numbers)
 
 	sum := exercises.Add(numbers...)
 	formattedNumber := FormatNumber(sum)
 	fmt.Println(formattedNumber)
+}
+
+func ParseArgs(args []string) string{
+	if args[0] == "--input-file" {
+		return "file"
+	}
+	return "number"
 }
 
 func InputFromArgs(args []string, numbers []int) []int {
@@ -30,11 +54,7 @@ func InputFromArgs(args []string, numbers []int) []int {
 	return numbers
 }
 
-func InputFromFile(numbers []int, fs fs.FS) []int {
-	file, err := fs.Open("input.txt")
-	if err != nil {
-		panic(err)
-	}
+func InputFromFile(numbers []int, file fs.File) []int {
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 

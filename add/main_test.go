@@ -46,6 +46,18 @@ func TestInsertIntoSlice(t *testing.T) {
 	is.Equal(result, expected)
 }
 
+func TestParseInput(t *testing.T){
+	is := is.New(t)
+	fileInputArgs := []string{"--input-file", "input.txt"}
+	numberInputArgs := []string{"20", "5", "2", "-3"}
+
+	isFile := ParseArgs(fileInputArgs)
+	isNumber := ParseArgs(numberInputArgs)
+
+	is.Equal(isFile, "file")
+	is.Equal(isNumber, "number")
+}
+
 func TestInputFromFile(t *testing.T) {
 	is := is.New(t)
 	fs := fstest.MapFS{
@@ -57,9 +69,11 @@ func TestInputFromFile(t *testing.T) {
 867543`)},
 	}
 
+	file, err := fs.Open("input.txt")
+	is.NoErr(err)
 	wantedNumbers := []int {4, 5, 32, 100, 867543}
 	gotNumbers := []int{}
-	gotNumbers = InputFromFile(gotNumbers, fs)
+	gotNumbers = InputFromFile(gotNumbers, file)
 
 	is.Equal(gotNumbers, wantedNumbers)
 }
