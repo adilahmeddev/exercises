@@ -60,22 +60,31 @@ func InputFromFile(numbers []int, file fs.File) []int {
 	defer file.Close()
 	fileInfo, _ := file.Stat()
 	if extension := strings.Split(fileInfo.Name(), "."); extension[1] == "csv"{
-		reader := csv.NewReader(file)
-		records, _ := reader.ReadAll()
-		numberRecords := records[0]
-		for _,number := range numberRecords {
-			fmt.Println(numberRecords)
-			numbers = extractNumber(string(number), numbers)
-		}
+		numbers = readFromCSV(numbers, file)
 	}
-	if extension := strings.Split(fileInfo.Name(), "."); extension[1] == "txt"{
-		scanner := bufio.NewScanner(file)
-
-		for scanner.Scan() {
-			numbers = extractNumber(scanner.Text(), numbers)
-		}
+	if extension := strings.Split(fileInfo.Name(), "."); extension[1] == "txt" {
+		numbers = readFromTxt(numbers, file)
 	}
 
+	return numbers
+}
+
+func readFromTxt(numbers []int, file fs.File) []int {
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		numbers = extractNumber(scanner.Text(), numbers)
+	}
+	return numbers
+}
+
+func readFromCSV(numbers []int, file fs.File) []int {
+	reader := csv.NewReader(file)
+	records, _ := reader.ReadAll()
+	numberRecords := records[0]
+	for _, number := range numberRecords {
+		numbers = extractNumber(string(number), numbers)
+	}
 	return numbers
 }
 
