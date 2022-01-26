@@ -2,14 +2,18 @@ package main
 
 import (
 	"bufio"
-	"encoding/csv"
+	"bytes"
 	"exercises"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"strconv"
 	"strings"
 )
+
+type NumberFile string
+
 
 func main(){
 	fs := os.DirFS("add/")
@@ -23,14 +27,17 @@ func main(){
 		}
 		numbers = InputFromFile(numbers,file)
 	} else {
-		fmt.Println(args[1])
 		typeOfArgs := ParseArgs(args)
 		if typeOfArgs == "file"{
-			file, err := fs.Open(args[1])
-			if err != nil {
-				panic(err)
+			fileNames := GetFiles(args)
+			for _, fileName := range fileNames {
+				file, err := fs.Open(string(fileName))
+				if err != nil {
+					panic(err)
+				}
+				numbers = InputFromFile(numbers, file)
 			}
-			numbers = InputFromFile(numbers, file)
+
 		}
 		if typeOfArgs == "number" {
 			numbers = InputFromArgs(args, numbers)
@@ -49,6 +56,19 @@ func ParseArgs(args []string) string{
 	return "number"
 }
 
+func GetFiles(args []string) []NumberFile {
+	var numberFile []NumberFile
+
+	for i := 0; i < len(args); i++ {
+		if args[i] == "--input-file" {
+			temp := NumberFile(args[i+1])
+			numberFile = append(numberFile, temp)
+			i++
+		}
+	}
+	return numberFile
+}
+
 func InputFromArgs(args []string, numbers []int) []int {
 	for _, arg := range args {
 		numbers = extractNumber(arg, numbers)
@@ -58,32 +78,47 @@ func InputFromArgs(args []string, numbers []int) []int {
 
 func InputFromFile(numbers []int, file fs.File) []int {
 	defer file.Close()
-	fileInfo, _ := file.Stat()
-	if extension := strings.Split(fileInfo.Name(), "."); extension[1] == "csv"{
-		numbers = readFromCSV(numbers, file)
+	var buf bytes.Buffer
+	tee := io.TeeReader(file, &buf)
+	bReader := bufio.NewReaderSize(tee, 50)
+	initialBytes := make([]byte, 50)
+	initialBytes, _ = bReader.Peek(50)
+
+	isCSV := false
+	for _,char := range []rune(string(initialBytes)) {
+		if char == ','{
+			isCSV = true
+		}
 	}
-	if extension := strings.Split(fileInfo.Name(), "."); extension[1] == "txt" {
-		numbers = readFromTxt(numbers, file)
+	if isCSV{
+		numbers = readFromCSV(numbers, &buf)
+	} else {
+		numbers =  readFromTxt(numbers, &buf)
 	}
+
 
 	return numbers
 }
 
-func readFromTxt(numbers []int, file fs.File) []int {
+func readFromTxt(numbers []int, file *bytes.Buffer) []int {
 	scanner := bufio.NewScanner(file)
-
 	for scanner.Scan() {
 		numbers = extractNumber(scanner.Text(), numbers)
 	}
 	return numbers
 }
 
-func readFromCSV(numbers []int, file fs.File) []int {
-	reader := csv.NewReader(file)
-	records, _ := reader.ReadAll()
-	numberRecords := records[0]
-	for _, number := range numberRecords {
-		numbers = extractNumber(string(number), numbers)
+func readFromCSV(numbers []int, file *bytes.Buffer) []int {
+
+	fileContents := make([]byte,file.Len())
+	i, err := file.Read(fileContents)
+	if err != nil {
+
+		panic(strconv.Itoa(i) + " " + err.Error())
+	}
+	records := strings.Split(string(fileContents), ",")
+	for _, number := range records {
+		numbers = extractNumber(number, numbers)
 	}
 	return numbers
 }
