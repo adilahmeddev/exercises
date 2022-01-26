@@ -85,7 +85,7 @@ func TestInputFromFile(t *testing.T) {
 
 	file, err := fs.Open("input.txt")
 	is.NoErr(err)
-	wantedNumbers := []int {6, 5, 32, 100, 867543}
+	wantedNumbers := []int {4, 5, 32, 100, 867543}
 	gotNumbers := []int{}
 	gotNumbers = InputFromFile(gotNumbers, file)
 
