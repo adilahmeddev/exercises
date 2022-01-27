@@ -24,7 +24,7 @@ func main(){
 		}
 		numbers = adder.InputFromFile(numbers,file)
 	} else {
-		typeOfArgs := adder.ParseArgs(args)
+		typeOfArgs := adder.ArgType(args)
 		if typeOfArgs == "file"{
 			fileNames := adder.GetFiles(args)
 			for _, fileName := range fileNames {

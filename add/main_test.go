@@ -58,8 +58,8 @@ func TestParseInput(t *testing.T){
 
 		adder := methods.NewAdder(map[int]int{}, methods.Formatter{})
 
-		isFile := adder.ParseArgs(fileInputArgs)
-		isNumber := adder.ParseArgs(numberInputArgs)
+		isFile := adder.ArgType(fileInputArgs)
+		isNumber := adder.ArgType(numberInputArgs)
 
 		is.Equal(isFile, "file")
 		is.Equal(isNumber, "number")
@@ -71,8 +71,8 @@ func TestParseInput(t *testing.T){
 
 		adder := methods.NewAdder(map[int]int{}, methods.Formatter{})
 
-		isFile := adder.ParseArgs(fileInputArgs)
-		isNumber := adder.ParseArgs(numberInputArgs)
+		isFile := adder.ArgType(fileInputArgs)
+		isNumber := adder.ArgType(numberInputArgs)
 
 		is.Equal(isFile, "file")
 		is.Equal(isNumber, "number")
@@ -95,7 +95,7 @@ func TestInputFromFile(t *testing.T) {
 	is.NoErr(err)
 	wantedNumbers := []int {4, 5, 32, 100, 867543}
 	gotNumbers := []int{}
-	adder := methods.NewAdder(map[int]int{},methods.Formatter{})
+	adder := methods.NewAdder(map[int]int{}, methods.Formatter{})
 	gotNumbers = adder.InputFromFile(gotNumbers, file)
 
 	is.Equal(gotNumbers, wantedNumbers)
