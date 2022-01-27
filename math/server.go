@@ -13,7 +13,6 @@ import (
 
 func MathServer(w http.ResponseWriter, r *http.Request) {
 	nums := []string{}
-	defer r.Body.Close()
 	switch r.Header.Get("content-type"){
 		case "application/x-www-form-urlencoded":
 			r.ParseForm()
