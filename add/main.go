@@ -15,7 +15,8 @@ func main(){
 	args := os.Args[1:]
 	var numbers []int
 
-	adder := methods.NewAdder(map[int]int{})
+	formatter := methods.Formatter{}
+	adder := methods.NewAdder(map[int]int{}, formatter)
 	if len(args) == 0 {
 		file, err := fs.Open("input.txt")
 		if err != nil {
@@ -41,7 +42,7 @@ func main(){
 	}
 
 	sum := exercises.Add(numbers...)
-	formattedNumber := adder.FormatNumber(sum)
+	formattedNumber := formatter.FormatNumber(sum)
 	fmt.Println(formattedNumber)
 }
 

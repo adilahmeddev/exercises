@@ -32,8 +32,8 @@ func TestFormatNumber(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		adder := methods.NewAdder(map[int]int{})
-		formattedNumber := adder.FormatNumber(tc.number)
+		formatter := methods.Formatter{}
+		formattedNumber := formatter.FormatNumber(tc.number)
 		is.Equal(formattedNumber, tc.want)
 	}
 
@@ -44,8 +44,8 @@ func TestInsertIntoSlice(t *testing.T) {
 	chars := []rune{'a', 'b', 'd'}
 	expected := []rune{'a', 'b', 'c', 'd'}
 
-	adder := methods.NewAdder(map[int]int{})
-	result := adder.InsertIntoSlice(chars, 2, 'c')
+	formatter := methods.Formatter{}
+	result := formatter.InsertIntoSlice(chars, 2, 'c')
 
 	is.Equal(result, expected)
 }
@@ -56,7 +56,7 @@ func TestParseInput(t *testing.T){
 		fileInputArgs := []string{"--input-file", "input.txt"}
 		numberInputArgs := []string{"20", "5", "2", "-3"}
 
-		adder := methods.NewAdder(map[int]int{})
+		adder := methods.NewAdder(map[int]int{}, methods.Formatter{})
 
 		isFile := adder.ParseArgs(fileInputArgs)
 		isNumber := adder.ParseArgs(numberInputArgs)
@@ -69,7 +69,8 @@ func TestParseInput(t *testing.T){
 		fileInputArgs := []string{"--input-file", "input.csv"}
 		numberInputArgs := []string{"20", "5", "2", "-3"}
 
-		adder := methods.NewAdder(map[int]int{})
+		adder := methods.NewAdder(map[int]int{}, methods.Formatter{})
+
 		isFile := adder.ParseArgs(fileInputArgs)
 		isNumber := adder.ParseArgs(numberInputArgs)
 
@@ -94,7 +95,7 @@ func TestInputFromFile(t *testing.T) {
 	is.NoErr(err)
 	wantedNumbers := []int {4, 5, 32, 100, 867543}
 	gotNumbers := []int{}
-	adder := methods.NewAdder(map[int]int{})
+	adder := methods.NewAdder(map[int]int{},methods.Formatter{})
 	gotNumbers = adder.InputFromFile(gotNumbers, file)
 
 	is.Equal(gotNumbers, wantedNumbers)
