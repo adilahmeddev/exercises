@@ -13,8 +13,14 @@ import (
 
 func MathServer(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Authorization") != "Bearer SUPER_SECRET_API_KEY"{
-		w.WriteHeader(http.StatusUnauthorized)
-		return
+		if r.Header.Get("Authorization") == "" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		} else {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
 	}
 	nums := []string{}
 	switch r.Header.Get("content-type"){
