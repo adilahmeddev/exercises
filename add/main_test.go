@@ -1,6 +1,7 @@
 package main
 
 import (
+	"exercises/add/methods"
 	"github.com/matryer/is"
 	"testing"
 	"testing/fstest"
@@ -31,7 +32,8 @@ func TestFormatNumber(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		formattedNumber := FormatNumber(tc.number)
+		adder := methods.NewAdder(map[int]int{})
+		formattedNumber := adder.FormatNumber(tc.number)
 		is.Equal(formattedNumber, tc.want)
 	}
 
@@ -41,7 +43,9 @@ func TestInsertIntoSlice(t *testing.T) {
 	is := is.New(t)
 	chars := []rune{'a', 'b', 'd'}
 	expected := []rune{'a', 'b', 'c', 'd'}
-	result := InsertIntoSlice(chars, 2, 'c')
+
+	adder := methods.NewAdder(map[int]int{})
+	result := adder.InsertIntoSlice(chars, 2, 'c')
 
 	is.Equal(result, expected)
 }
@@ -52,8 +56,10 @@ func TestParseInput(t *testing.T){
 		fileInputArgs := []string{"--input-file", "input.txt"}
 		numberInputArgs := []string{"20", "5", "2", "-3"}
 
-		isFile := ParseArgs(fileInputArgs)
-		isNumber := ParseArgs(numberInputArgs)
+		adder := methods.NewAdder(map[int]int{})
+
+		isFile := adder.ParseArgs(fileInputArgs)
+		isNumber := adder.ParseArgs(numberInputArgs)
 
 		is.Equal(isFile, "file")
 		is.Equal(isNumber, "number")
@@ -63,8 +69,9 @@ func TestParseInput(t *testing.T){
 		fileInputArgs := []string{"--input-file", "input.csv"}
 		numberInputArgs := []string{"20", "5", "2", "-3"}
 
-		isFile := ParseArgs(fileInputArgs)
-		isNumber := ParseArgs(numberInputArgs)
+		adder := methods.NewAdder(map[int]int{})
+		isFile := adder.ParseArgs(fileInputArgs)
+		isNumber := adder.ParseArgs(numberInputArgs)
 
 		is.Equal(isFile, "file")
 		is.Equal(isNumber, "number")
@@ -87,7 +94,8 @@ func TestInputFromFile(t *testing.T) {
 	is.NoErr(err)
 	wantedNumbers := []int {4, 5, 32, 100, 867543}
 	gotNumbers := []int{}
-	gotNumbers = InputFromFile(gotNumbers, file)
+	adder := methods.NewAdder(map[int]int{})
+	gotNumbers = adder.InputFromFile(gotNumbers, file)
 
 	is.Equal(gotNumbers, wantedNumbers)
 }
