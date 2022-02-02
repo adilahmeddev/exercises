@@ -1,48 +1,32 @@
 package main
 
 import (
-	"exercises"
 	"exercises/add/methods"
 	"fmt"
+	"io"
 	"os"
 )
 
 
-
-
-func main(){
-	fs := os.DirFS("add/")
-	args := os.Args[1:]
+func run(args []string, output io.Writer){
 	var numbers []int
+	fs := os.DirFS("add/")
 
 	formatter := methods.Formatter{}
 	adder := methods.NewAdder(map[int]int{}, formatter)
-	if len(args) == 0 {
-		file, err := fs.Open("input.txt")
-		if err != nil {
-			panic(err)
-		}
-		numbers = adder.InputFromFile(numbers,file)
-	} else {
-		typeOfArgs := adder.ArgType(args)
-		if typeOfArgs == "file"{
-			fileNames := adder.GetFiles(args)
-			for _, fileName := range fileNames {
-				file, err := fs.Open(string(fileName))
-				if err != nil {
-					panic(err)
-				}
-				numbers = adder.InputFromFile(numbers, file)
-			}
 
-		}
-		if typeOfArgs == "number" {
-			numbers = adder.InputFromArgs(args, numbers)
-		}
-	}
+	adder.LoadNumbers(args, fs, numbers)
 
-	sum := exercises.Add(numbers...)
-	formattedNumber := formatter.FormatNumber(sum)
-	fmt.Println(formattedNumber)
+
+	formattedNumber := adder.Format()
+	fmt.Fprint(output, formattedNumber)
+}
+
+
+
+func main(){
+	args := os.Args[1:]
+	run(args, os.Stdout)
+
 }
 

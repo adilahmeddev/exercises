@@ -3,6 +3,7 @@ package methods
 import (
 	"bufio"
 	"bytes"
+	"exercises"
 	"io"
 	"io/fs"
 	"strconv"
@@ -14,22 +15,48 @@ type NumberFile string
 type Adder struct {
 	history   map[int]int
 	formatter Formatter
+	numbers []int
 }
 
 func NewAdder(history map[int]int, formatter Formatter) *Adder {
 	return &Adder{history: history, formatter: formatter}
 }
+func (a* Adder) LoadNumbers(args []string, fs fs.FS, numbers []int)  {
 
 
-func (a Adder) ArgType(args []string) string {
+	typeOfArgs := a.ArgType(args)
+	if typeOfArgs == "file" {
+		fileNames := a.GetFiles(args)
+		for _, fileName := range fileNames {
+			file, err := fs.Open(string(fileName))
+			if err != nil {
+				panic(err)
+			}
+			a.InputFromFile(file)
+		}
+
+	}
+	if typeOfArgs == "number" {
+		a.InputFromArgs(args, numbers)
+	}
+
+}
+
+
+
+func (a* Adder) ArgType(args []string) string {
 	if args[0] == "--input-file" {
 		return "file"
 	}
 	return "number"
 }
 
-func (a Adder) GetFiles(args []string) []NumberFile {
+func (a* Adder) GetFiles(args []string) []NumberFile {
 	var numberFile []NumberFile
+	if len(args)==0{
+		numberFile = append(numberFile, NumberFile("input.txt"))
+		return numberFile
+	}
 
 	for i := 0; i < len(args); i++ {
 		if args[i] == "--input-file" {
@@ -41,14 +68,13 @@ func (a Adder) GetFiles(args []string) []NumberFile {
 	return numberFile
 }
 
-func (a Adder) InputFromArgs(args []string, numbers []int) []int {
+func (a* Adder) InputFromArgs(args []string, numbers []int) {
 	for _, arg := range args {
-		numbers = a.extractNumber(arg, numbers)
+		a.numbers = a.extractNumber(arg)
 	}
-	return numbers
 }
 
-func (a Adder) InputFromFile(numbers []int, file fs.File) []int {
+func (a* Adder) InputFromFile(file fs.File) {
 	defer file.Close()
 	var buf bytes.Buffer
 	tee := io.TeeReader(file, &buf)
@@ -63,45 +89,49 @@ func (a Adder) InputFromFile(numbers []int, file fs.File) []int {
 		}
 	}
 	if isCSV {
-		numbers = a.readFromCSV(numbers, &buf)
+		a.numbers = a.readFromCSV(&buf)
 	} else {
-		numbers = a.readFromTxt(numbers, &buf)
+		a.numbers = a.readFromTxt(&buf)
 	}
 
-	return numbers
 }
 
-func (a Adder) readFromTxt(numbers []int, file *bytes.Buffer) []int {
+func (a* Adder) readFromTxt(file *bytes.Buffer) []int {
+	var numbers []int
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		numbers = a.extractNumber(scanner.Text(), numbers)
+		numbers = a.extractNumber(scanner.Text())
 	}
 	return numbers
 }
 
-func (a Adder) readFromCSV(numbers []int, file *bytes.Buffer) []int {
+func (a* Adder) readFromCSV(file *bytes.Buffer) []int {
 
 	fileContents := make([]byte, file.Len())
 	i, err := file.Read(fileContents)
 	if err != nil {
-
 		panic(strconv.Itoa(i) + " " + err.Error())
 	}
 	records := strings.Split(string(fileContents), ",")
 	for _, number := range records {
-		numbers = a.extractNumber(number, numbers)
+		a.numbers = a.extractNumber(number)
 	}
-	return numbers
+	return a.numbers
 }
 
-func (a Adder) extractNumber(input string, numbers []int) []int {
+func (a* Adder) extractNumber(input string) []int {
+	var numbers []int
 	i, err := strconv.Atoi(input)
 	if err == nil {
 		if a.history[i] == 0 {
-			numbers = append(numbers, i)
+			numbers = append(a.numbers, i)
 		}
 		a.history[i]=1
 	}
 	return numbers
+}
+
+func (a* Adder) Format() string {
+	return a.formatter.FormatNumber(exercises.Add(a.numbers...))
 }
 
