@@ -1,4 +1,4 @@
-module exercises
+module calculator
 
 go 1.17
 
