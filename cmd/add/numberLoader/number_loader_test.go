@@ -54,11 +54,18 @@ func TestNumberLoader(t *testing.T) {
 8
 9`))
 
+		fileName3 := "input2.csv"
+		file3, err := os.Create( fileName3)
+		if err != nil {
+			is.NoErr(err)
+		}
+		file3.Write([]byte(`1,2,3`))
+
 
 
 		numberLoader := NewNumberLoader(os.DirFS("./"))
-		want := []int{5,10,7,6,8,9}
-		got, err := numberLoader.Load([]string{"--input-file",fileName, "--input-file", fileName2})
+		want := []int{5,10,7,6,8,9,1,2,3}
+		got, err := numberLoader.Load([]string{"--input-file",fileName, "--input-file", fileName2, "--input-file", fileName3})
 
 
 		is.NoErr(err)
@@ -73,5 +80,8 @@ func TestNumberLoader(t *testing.T) {
 		err = os.Remove(file2.Name())
 		is.NoErr(err)
 
+		file3.Close()
+		err = os.Remove(file3.Name())
+		is.NoErr(err)
 	})
 }

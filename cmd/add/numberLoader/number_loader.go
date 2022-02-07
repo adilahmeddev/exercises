@@ -2,9 +2,12 @@ package numberLoader
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"io"
 	"io/fs"
 	"strconv"
+	"strings"
 )
 
 type NumberLoader struct {
@@ -63,10 +66,28 @@ func (n *NumberLoader) extractFromInputFile(args []string, files []string) error
 		if err != nil {
 			return err
 		}
-		err = n.readFromTxt(file)
+		tee := bytes.Buffer{}
+		reader := io.TeeReader(file, &tee)
+		fileInfo, _ := file.Stat()
+
+		output := make([]byte, fileInfo.Size())
+		_, err = reader.Read(output)
 		if err != nil {
 			return err
 		}
+		isCSV := n.isCSV(tee.Bytes())
+		if isCSV {
+			err = n.readFromCSV(output)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = n.readFromTxt(output)
+			if err != nil {
+				return err
+			}
+		}
+
 		err = file.Close()
 		if err != nil {
 			return err
@@ -80,7 +101,13 @@ func (n *NumberLoader) extractFromDefault() error {
 	if err != nil {
 		return err
 	}
-	err = n.readFromTxt(file)
+	fileinfo, _ := file.Stat()
+	fileContents := make([]byte, fileinfo.Size())
+	_, err = file.Read(fileContents)
+	if err != nil {
+		return err
+	}
+	err = n.readFromTxt(fileContents)
 	if err != nil {
 		return err
 	}
@@ -91,8 +118,9 @@ func (n *NumberLoader) extractFromDefault() error {
 	return nil
 }
 
-func (n* NumberLoader) readFromTxt(file fs.File) error {
-	scanner := bufio.NewScanner(file)
+func (n* NumberLoader) readFromTxt(output []byte) error {
+	reader := bytes.NewReader(output)
+	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		err := n.extractNumber(scanner.Text())
 		if err != nil {
@@ -111,6 +139,27 @@ func (n* NumberLoader) extractNumber(input string) error {
 		n.history[i]=1
 	} else {
 		return fmt.Errorf("invalid input")
+	}
+	return nil
+}
+
+func (n *NumberLoader) isCSV(content []byte) bool{
+
+	for _, r := range content {
+		if string(r) == ","{
+			return true
+		}
+	}
+	return false
+}
+
+func (n *NumberLoader) readFromCSV(content []byte) error {
+	chars := strings.Split(string(content), ",")
+	for _, char := range chars {
+		err := n.extractNumber(char)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
