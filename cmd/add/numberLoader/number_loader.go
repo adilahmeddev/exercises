@@ -19,48 +19,76 @@ func NewNumberLoader(fs fs.FS) *NumberLoader {
 
 func (n* NumberLoader) Load(args []string) ([]int, error){
 	if len(args) == 0{
-		file, err := n.fs.Open("input.txt")
+		err := n.extractFromDefault()
 		if err != nil {
 			return nil, err
 		}
-
-		err = n.readFromTxt(file)
-		if err != nil {
-			return nil, err
-		}
-		file.Close()
 	}
 	var files []string
-	if len(args) > 0 && args[0] == "--input-file"{
-			if len(args) >=2 && len(args)%2==0{
-				for i := 0; i < len(args); i++ {
-					if args[i] == "--input-file" {
-						files = append(files,args[i+1])
-						i++
-					}
-				}
-			}
-		for _, fileName := range files {
-			file, err := n.fs.Open(fileName)
-			if err != nil {
-				return nil, err
-			}
-
-			err = n.readFromTxt(file)
-			if err != nil {
-				return nil, err
-			}
-			file.Close()
+	if len(args) > 0 && args[0] == "--input-file" {
+		err := n.extractFromInputFile(args, files)
+		if err != nil {
+			return nil, err
 		}
 	} else {
-		for _, arg := range args {
-			err := n.extractNumber(arg)
-			if err != nil {
-				return nil, err
-			}
+		err := n.extractNumberFromArgs(args)
+		if err != nil {
+			return nil, err
 		}
 	}
 	return n.numbers, nil
+}
+
+func (n *NumberLoader) extractNumberFromArgs(args []string) error {
+	for _, arg := range args {
+		err := n.extractNumber(arg)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (n *NumberLoader) extractFromInputFile(args []string, files []string) error {
+	if len(args) >= 2 && len(args)%2 == 0 {
+		for i := 0; i < len(args); i++ {
+			if args[i] == "--input-file" {
+				files = append(files, args[i+1])
+				i++
+			}
+		}
+	}
+	for _, fileName := range files {
+		file, err := n.fs.Open(fileName)
+		if err != nil {
+			return err
+		}
+		err = n.readFromTxt(file)
+		if err != nil {
+			return err
+		}
+		err = file.Close()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (n *NumberLoader) extractFromDefault() error {
+	file, err := n.fs.Open("input.txt")
+	if err != nil {
+		return err
+	}
+	err = n.readFromTxt(file)
+	if err != nil {
+		return err
+	}
+	err = file.Close()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (n* NumberLoader) readFromTxt(file fs.File) error {
