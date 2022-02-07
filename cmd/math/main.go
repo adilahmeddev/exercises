@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
@@ -9,7 +10,15 @@ import (
 func main(){
 	args := os.Args[1:]
 	if len(args) > 0 && args[0] == "--web-server" {
-		handler := http.HandlerFunc(MathServer)
-		log.Fatal(http.ListenAndServe(":5000", handler))
+		r := mux.NewRouter()
+		r.HandleFunc("/add", MathServer)
+		r.HandleFunc("/fibonacci/{num}", FibonacciServer)
+
+		server := &http.Server{
+			Handler: r,
+			Addr: "127.0.0.1:5000",
+		}
+		log.Fatal(server.ListenAndServe())
 	}
 }
+

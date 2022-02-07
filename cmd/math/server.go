@@ -6,12 +6,35 @@ import (
 	sum2 "calculator/sum"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 )
 
+func FibonacciServer(writer http.ResponseWriter, request *http.Request) {
+	numString := mux.Vars(request)["num"]
+	num, _ := strconv.Atoi(numString)
+
+	writer.WriteHeader(http.StatusOK)
+	fmt.Fprintf(writer, fib(num))
+
+}
+
+func fib(n int) string {
+	if n < 2 {
+		return "0"
+	}
+	current := 1
+	previous := 0
+	for i:=0; i<n-2; i++ {
+		temp := current
+		current = current + previous
+		previous = temp
+	}
+	return strconv.Itoa(current)
+}
 
 func MathServer(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Authorization") != "Bearer " +os.Getenv("super_secret_api_key"){
