@@ -2,6 +2,7 @@ package main
 
 import (
 	"calculator/cmd/add/numberLoader"
+	"calculator/formatter"
 	sum2 "calculator/sum"
 	"fmt"
 	"io"
@@ -22,5 +23,6 @@ func run(args []string, output io.Writer){
 	}
 	sum := sum2.Sum(nums...)
 
-	fmt.Fprint(output, sum)
+	formatter := formatter.Formatter{}
+	fmt.Fprint(output, formatter.FormatNumber(sum))
 }
