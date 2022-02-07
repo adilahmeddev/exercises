@@ -18,6 +18,7 @@ func run(args []string, output io.Writer){
 	nums, err := loader.Load(args)
 	if err != nil {
 		fmt.Fprint(output,err)
+		return
 	}
 	sum := sum2.Sum(nums...)
 

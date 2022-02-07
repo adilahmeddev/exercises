@@ -24,7 +24,10 @@ func (n* NumberLoader) Load(args []string) ([]int, error){
 			return nil, err
 		}
 
-		n.readFromTxt(file)
+		err = n.readFromTxt(file)
+		if err != nil {
+			return nil, err
+		}
 		file.Close()
 	}
 	var files []string
@@ -45,26 +48,43 @@ func (n* NumberLoader) Load(args []string) ([]int, error){
 				return nil, err
 			}
 
-			n.readFromTxt(file)
+			err = n.readFromTxt(file)
+			if err != nil {
+				return nil, err
+			}
 			file.Close()
+		}
+	} else {
+		for _, arg := range args {
+			err := n.extractNumber(arg)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return n.numbers, nil
 }
 
-func (n* NumberLoader) readFromTxt(file fs.File){
+func (n* NumberLoader) readFromTxt(file fs.File) error {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		n.extractNumber(scanner.Text())
+		err := n.extractNumber(scanner.Text())
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
-func (n* NumberLoader) extractNumber(input string) {
+func (n* NumberLoader) extractNumber(input string) error {
 	i, err := strconv.Atoi(input)
 	if err == nil {
 		if n.history[i] == 0 {
 			n.numbers = append(n.numbers, i)
 		}
 		n.history[i]=1
+	} else {
+		return fmt.Errorf("invalid input")
 	}
+	return nil
 }
