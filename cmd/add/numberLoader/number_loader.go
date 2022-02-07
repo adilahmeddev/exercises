@@ -33,7 +33,6 @@ func (n* NumberLoader) Load(args []string) ([]int, error){
 	var files []string
 	if len(args) > 0 && args[0] == "--input-file"{
 			if len(args) >=2 && len(args)%2==0{
-				fmt.Println("true")
 				for i := 0; i < len(args); i++ {
 					if args[i] == "--input-file" {
 						files = append(files,args[i+1])
@@ -41,7 +40,6 @@ func (n* NumberLoader) Load(args []string) ([]int, error){
 					}
 				}
 			}
-			fmt.Println(files)
 		for _, fileName := range files {
 			file, err := n.fs.Open(fileName)
 			if err != nil {
