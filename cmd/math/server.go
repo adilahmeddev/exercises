@@ -14,7 +14,8 @@ import (
 
 
 func MathServer(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Authorization") != "Bearer SUPER_SECRET_API_KEY"{
+	if r.Header.Get("Authorization") != "Bearer " +os.Getenv("super_secret_api_key"){
+	//if r.Header.Get("Authorization") != "Bearer SUPER_SECRET_API_KEY"{
 		if r.Header.Get("Authorization") == "" {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
